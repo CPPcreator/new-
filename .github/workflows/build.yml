@@ -1,42 +1,17 @@
-name: CI
+name: Update Projects
 on:
-  push:
-    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *'
+    # This makes the action to run at the end of every day. Customize this accordingly or you can also trigger this action for GitHub events (Pull, Push). Check the GitHub actions page for that.
+  workflow_dispatch:
+    # workflow_dispatch allows you to trigger the action any time manually
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
-
+  update-readme-with-projects:
+    name: Update this repo's README with latest project updates
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      used to cache dependencies with a timeout
-      - name: Get Date
-        id: get-date
-        run: |
-          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-        shell: bash
-
-      - name: Cache Buildozer global directory
-        uses: actions/cache@v2
+      - uses: kaustubhgupta/readme-projects-display@master
         with:
-          path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
-
-      - uses: actions/cache@v2
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
-
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: buildozer android debug
-          buildozer_version: stable
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+          gh_token: ${{1234}} # Create a secret to store the access token
